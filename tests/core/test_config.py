@@ -50,6 +50,9 @@ def test_settings_loading_from_dotenv_file(
     Tests that settings are correctly loaded from a .env file.
     """
     get_settings.cache_clear()
+    # Remove env vars so the .env file source takes precedence
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_BASE", raising=False)
     monkeypatch.chdir(tmp_path)
     env_file = tmp_path / ".env"
     env_file.write_text(
@@ -61,13 +64,18 @@ def test_settings_loading_from_dotenv_file(
     assert settings.OPENAI_API_KEY == "test_api_key_from_dotenv"
 
 
-def test_settings_missing_required_field() -> None:
+def test_settings_missing_required_field(monkeypatch: "MonkeyPatch") -> None:
     """
     Tests that a ValidationError is raised if a required field is missing.
     """
     get_settings.cache_clear()
+    # Ensure all required fields are unset so validation fails
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_BASE", raising=False)
+    monkeypatch.delenv("LANGSMITH_ENDPOINT", raising=False)
+    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
+    monkeypatch.delenv("LANGSMITH_PROJECT", raising=False)
     with pytest.raises(ValidationError):
-        # Assuming OPENAI_API_KEY is not set in the test environment
         get_settings()
 
 
@@ -79,6 +87,8 @@ def test_gcp_secret_manager_loading(monkeypatch: "MonkeyPatch", mocker: "MockerF
     monkeypatch.setenv("APP_ENVIRONMENT", "prod")
     monkeypatch.setenv("SECRET_PROJECT_ID", "test-project")
     monkeypatch.setenv("OPENAI_API_BASE", "https://api.openai.com/v1")
+    # Remove OPENAI_API_KEY from env so the GCP source provides it
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     mock_secret_manager_client = mocker.patch(
         "google.cloud.secretmanager.SecretManagerServiceClient"
