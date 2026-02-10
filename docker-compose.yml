@@ -1,0 +1,22 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "56743:8000"
+    env_file:
+      - .env
+    environment:
+      - APP_ENVIRONMENT=local
+      - SANDBOX_BASE_DIR=/app/sandbox
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+    volumes:
+      - ./volumes/sandbox:/app/sandbox
+      - ./app:/app/app
+      - ./credentials.json:/app/credentials.json
+    command: uvicorn app.app:create_app --host 0.0.0.0 --port 8000 --reload --factory
+
+volumes:
+  sandbox:
+    driver: local

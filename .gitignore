@@ -1,0 +1,30 @@
+/.venv
+/volumes
+/sheetrm
+/example_sheets
+/output
+/db_path
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Google Cloud credentials
+credentials.json
+*.json
+!example.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
